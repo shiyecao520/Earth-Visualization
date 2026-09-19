@@ -1,0 +1,4 @@
+data/source/datasets_scientific.csv filter=lfs diff=lfs merge=lfs -text
+data/source/papers_converted_point.csv filter=lfs diff=lfs merge=lfs -text
+data/generated/dataset_heat.sqlite filter=lfs diff=lfs merge=lfs -text
+data/generated/paper_points.sqlite filter=lfs diff=lfs merge=lfs -text

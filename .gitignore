@@ -36,10 +36,5 @@ assets/_debug_*.html
 # Generated delivery bundle
 部署包/
 
-# Runtime indexes: rebuild with the scripts in package.json
-data/generated/*.sqlite
-data/generated/*.sqlite-*
-
-# Oversized source exports: keep them locally or distribute through data storage
-data/source/datasets_scientific.csv
-data/source/papers_converted_point.csv
+# Empty legacy placeholder created by an earlier build
+data/generated/merged_datasets.sqlite

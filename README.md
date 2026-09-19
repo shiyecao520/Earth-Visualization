@@ -26,7 +26,7 @@ MCP_URL=http://your-mcp-host/mcp npm start
 - `data/source/papers_converted_point.csv`：独立论文原始表，使用 `lng_new` / `lat_new` 作为标准点位
 - `data/generated/paper_points.sqlite`：论文点位、学科主题和行政区归属索引
 
-> GitHub 仓库不包含上述两个原始 CSV 和三个较大的 SQLite 运行索引，因为它们超过或接近 GitHub 的普通文件限制，且属于可再生成的数据。克隆仓库后，请先把原始 CSV 放回对应路径，再执行 `npm run build:data` 和 `npm run build:papers`。`dataset_merged.sqlite` 可由仓库内的工作簿直接执行 `npm run build:merged` 生成。没有这些数据时，页面仍可启动，但热力图、论文列表和相关统计不可用。
+> 仓库包含完整运行数据：两个较大的 SQLite 索引和一个超过 100 MB 的原始 CSV 使用 Git LFS 保存，其余文件使用普通 Git。第一次克隆前请先安装 Git LFS，并执行 `git lfs install`；随后使用 `git clone`，LFS 数据会自动下载。不要直接下载 GitHub 的源码 ZIP，因为它可能只包含 LFS 指针文件。
 
 替换 CSV 后执行以下命令重建索引，再重新启动服务：
 
@@ -126,3 +126,9 @@ window.AdminExplorer.setFilterResult({
 ## 说明
 
 页面优先加载本地 `node_modules` 中的 Cesium；本地缺失时自动回退到 CDN。
+
+## 完整下载与直接预览
+
+- 需要完整源码和运行数据时，直接 `git clone` 本仓库，并确保本机已安装 Git LFS。
+- 需要在 Linux x86_64 服务器上直接运行、无需安装 Python 或前端依赖时，请从 [Latest Release](https://github.com/shiyecao520/Earth-Visualization/releases/latest) 下载完整部署包。
+- Release 中包含已验证的 Linux 单文件程序和部署说明；首次启动约需 30–90 秒完成数据解压与热力图预热。

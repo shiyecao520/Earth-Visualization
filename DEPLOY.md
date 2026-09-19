@@ -1,5 +1,11 @@
 # 服务器部署说明
 
+## 推荐方式：下载完整 Release
+
+GitHub 的 [Latest Release](https://github.com/shiyecao520/Earth-Visualization/releases/latest) 提供完整 Linux x86_64 单文件部署包，包含 Python 运行时、前端、Cesium、行政边界和 SQLite 运行索引。下载后无需安装 Python 或前端依赖，可直接按包内《部署说明》启动并预览完整效果。
+
+以下内容适用于从源码目录部署。
+
 本目录是可直接部署的运行包，包含前端静态资源、Cesium 本地资源、行政边界和已生成的 SQLite 运行索引。
 
 ## 重要：不要用纯静态服务器
