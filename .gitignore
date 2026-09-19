@@ -1,0 +1,45 @@
+# macOS / editor
+.DS_Store
+**/.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# JavaScript dependencies and logs
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# Python caches and virtual environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+
+# Local secrets
+js/config.local.js
+
+# Local screenshots and debug pages
+_*.png
+_*.jpg
+_debug_*.html
+assets/_debug_*.html
+
+# Generated delivery bundle
+部署包/
+
+# Runtime indexes: rebuild with the scripts in package.json
+data/generated/*.sqlite
+data/generated/*.sqlite-*
+
+# Oversized source exports: keep them locally or distribute through data storage
+data/source/datasets_scientific.csv
+data/source/papers_converted_point.csv

@@ -1,0 +1,33 @@
+{
+  "name": "@oneearth/region-drilldown",
+  "version": "1.0.0",
+  "description": "挂载到现有 Cesium Viewer 的行政区圆圈下钻前端插件",
+  "type": "module",
+  "main": "./dist/region-drilldown.umd.js",
+  "module": "./dist/region-drilldown.es.js",
+  "types": "./dist/region-drilldown.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/region-drilldown.d.ts",
+      "import": "./dist/region-drilldown.es.js",
+      "default": "./dist/region-drilldown.es.js"
+    }
+  },
+  "files": [
+    "dist",
+    "docs",
+    "api",
+    "examples",
+    "README.md",
+    "给OneEarth程序员的说明.md"
+  ],
+  "peerDependencies": {
+    "cesium": ">=1.100 <2"
+  },
+  "scripts": {
+    "build": "npm run build:esm && npm run build:umd",
+    "build:esm": "npx --yes esbuild src/index.js --bundle --format=esm --external:cesium --outfile=dist/region-drilldown.es.js --banner:js='/* OneEarth Region Drilldown v1.0.0 | Cesium is a peer dependency */'",
+    "build:umd": "npx --yes esbuild src/umd.js --bundle --format=iife --global-name=OneEarthRegionDrilldown --outfile=dist/region-drilldown.umd.js --banner:js='/* OneEarth Region Drilldown v1.0.0 | Requires window.Cesium */'"
+  },
+  "license": "UNLICENSED"
+}

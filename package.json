@@ -1,0 +1,16 @@
+{
+  "name": "dataset-earth",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interactive Cesium globe for spatiotemporal geoscience datasets.",
+  "scripts": {
+    "build:data": "python3 scripts/build_heat_index.py",
+    "build:papers": "python3 scripts/build_paper_index.py",
+    "build:all": "npm run build:data && npm run build:papers && npm run build:merged",
+    "start": "python3 server.py",
+    "build:merged": "python3 scripts/build_merged_dataset_index.py"
+  },
+  "dependencies": {
+    "cesium": "1.144.0"
+  }
+}

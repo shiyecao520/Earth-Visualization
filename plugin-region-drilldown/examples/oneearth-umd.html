@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>OneEarth UMD 接入示例</title>
+  <link rel="stylesheet" href="./Cesium/Widgets/widgets.css">
+</head>
+<body>
+  <div id="cesium-container" style="width:100vw;height:100vh"></div>
+
+  <script src="./Cesium/Cesium.js"></script>
+  <script src="./region-drilldown.umd.js"></script>
+  <script>
+    const viewer = new Cesium.Viewer("cesium-container");
+
+    const regionLayer = OneEarthRegionDrilldown.createRegionDrilldown(viewer, {
+      dataProvider: oneEarthRegionProvider
+    });
+
+    // OneEarth 页面卸载时
+    // regionLayer.destroy();
+  </script>
+</body>
+</html>

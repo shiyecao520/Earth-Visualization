@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "code": "CHN",
+      "name": "中国",
+      "level": "country",
+      "parentCode": null,
+      "hasChildren": true,
+      "childLevel": "province",
+      "center": [104.2, 35.0],
+      "bounds": [73.5, 18.0, 135.1, 53.6],
+      "datasetCount": 1832,
+      "paperCount": 396
+    }
+  ]
+}

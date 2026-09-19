@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0f14">
+  <title>数据集地球</title>
+  <link rel="stylesheet" href="./css/style.css?v=67">
+</head>
+<body>
+  <main id="cesium-container" aria-label="数据集地球"></main>
+
+  <div id="loader" class="loader" role="status">
+    <div class="loader-spinner"></div>
+    <p id="loader-status">正在加载地球渲染引擎...</p>
+  </div>
+
+  <header id="topbar" class="topbar">
+    <section class="filter-toolbar" aria-label="数据集搜索和筛选">
+      <label class="dataset-search" for="dataset-search-input">
+        <span data-icon="search"></span>
+        <input id="dataset-search-input" type="search" placeholder="描述研究问题 / 定位地名 / 输入关键词" autocomplete="off">
+      </label>
+      <button id="filters-toggle" class="filters-toggle" type="button" aria-expanded="false">
+        <span data-icon="filter"></span>
+        <span>筛选</span>
+        <b id="active-filter-count" class="active-filter-count hidden">0</b>
+      </button>
+    </section>
+    <section id="time-filter" class="time-filter" aria-label="数据集连续时间范围筛选">
+      <div class="time-filter-heading">
+        <output id="time-filter-value">46亿年前 — 2026</output>
+      </div>
+      <div class="time-axis">
+        <div class="time-range-shell">
+          <div id="time-density" class="time-density" aria-hidden="true"></div>
+          <div class="time-range-rail" aria-hidden="true"><i id="time-range-selection"></i></div>
+          <input id="time-range-start" type="range" min="0" max="1000" step="1" value="0" aria-label="数据集较早时间边界">
+          <input id="time-range-end" type="range" min="0" max="1000" step="1" value="1000" aria-label="数据集较晚时间边界">
+        </div>
+        <div id="time-scale" class="time-scale" aria-hidden="true"></div>
+      </div>
+      <div class="time-focus-switch" role="group" aria-label="时间轴快速聚焦">
+        <button class="is-active" type="button" data-time-focus="geologic">深时</button>
+        <button type="button" data-time-focus="human">纪年</button>
+      </div>
+    </section>
+    <div class="map-command-group">
+      <nav id="drill-bar" class="drill-bar" aria-label="行政区层级">
+        <button id="drill-back" class="drill-back hidden" type="button" title="返回上一级">
+          <span data-icon="arrowLeft"></span>
+        </button>
+        <div id="drill-breadcrumb" class="drill-breadcrumb"></div>
+        <div id="drill-summary" class="drill-summary" aria-label="当前层级数据统计">
+          <strong id="drill-dataset-total">--</strong><span>集</span>
+          <i aria-hidden="true"></i>
+          <b id="drill-region-total">--</b><span id="drill-region-unit">区</span>
+        </div>
+      </nav>
+      <div class="topbar-actions">
+        <button id="layers-toggle" class="icon-btn" type="button" title="图层">
+          <span data-icon="layers"></span>
+        </button>
+        <div class="spatial-select-control">
+          <button id="spatial-select-toggle" class="icon-btn spatial-select-main" type="button" title="矩形框选" aria-pressed="false">
+            <span data-icon="scan" data-selection-icon="rectangle" class="is-active"></span>
+            <span data-icon="circleDot" data-selection-icon="circle"></span>
+            <span data-icon="lasso" data-selection-icon="freehand"></span>
+          </button>
+          <button id="spatial-select-menu-toggle" class="spatial-select-menu-toggle" type="button" title="选择框选方式" aria-expanded="false">
+            <span data-icon="chevronDown"></span>
+          </button>
+          <div id="spatial-select-menu" class="spatial-select-menu hidden">
+            <button type="button" data-selection-tool="rectangle" class="is-active">
+              <span data-icon="scan"></span>
+              <span><strong>矩形框选</strong><small>拖拽绘制矩形范围</small></span>
+              <i data-icon="check"></i>
+            </button>
+            <button type="button" data-selection-tool="circle">
+              <span data-icon="circleDot"></span>
+              <span><strong>圆形点选</strong><small>点击确定圆心再拖动</small></span>
+              <i data-icon="check"></i>
+            </button>
+            <button type="button" data-selection-tool="freehand">
+              <span data-icon="lasso"></span>
+              <span><strong>自由圈选</strong><small>拖动自由绘制轮廓</small></span>
+              <i data-icon="check"></i>
+            </button>
+          </div>
+        </div>
+        <button id="reset-view" class="icon-btn" type="button" title="复位视图">
+          <span data-icon="crosshair"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section id="filters-panel" class="filters-panel hidden" aria-label="数据与论文筛选条件">
+    <div class="filter-field-grid">
+      <label class="filter-field"><span>数据集学科主题</span><select id="filter-theme">
+        <option value="">全部数据集主题</option>
+      </select></label>
+      <label class="filter-field"><span>论文学科主题</span><select id="filter-paper-theme">
+        <option value="">全部论文主题</option>
+      </select></label>
+      <label class="filter-field"><span>数据来源</span><select id="filter-source">
+        <option value="">全部数据来源</option>
+      </select></label>
+      <div class="filter-field filter-field-wide publication-range-field">
+        <div class="publication-range-heading">
+          <span>论文发表时间</span>
+          <output id="filter-publication-value">1850 — 2021</output>
+        </div>
+        <div class="publication-range-shell">
+          <div class="publication-range-rail" aria-hidden="true"><i id="filter-publication-selection"></i></div>
+          <input id="filter-publication-start" type="range" min="1850" max="2021" step="1" value="1850"
+            aria-label="论文发表起始年份">
+          <input id="filter-publication-end" type="range" min="1850" max="2021" step="1" value="2021"
+            aria-label="论文发表结束年份">
+        </div>
+        <div class="publication-range-scale" aria-hidden="true">
+          <span id="filter-publication-min">1850</span>
+          <span id="filter-publication-mid">1935</span>
+          <span id="filter-publication-max">2021</span>
+        </div>
+      </div>
+    </div>
+    <footer class="filters-panel-actions">
+      <button id="reset-filters" class="filter-action secondary" type="button">重置</button>
+      <button id="apply-filters" class="filter-action primary" type="button">应用筛选</button>
+    </footer>
+  </section>
+
+  <aside id="stats-panel" class="stats-panel hidden" aria-label="区域数据集统计">
+    <header class="stats-panel-head">
+      <div>
+        <span id="stats-level" class="stats-kicker">国家层级</span>
+        <h2 id="stats-title">中国数据概览</h2>
+      </div>
+      <span id="stats-filter-state" class="stats-filter-state hidden">已筛选</span>
+    </header>
+    <div class="stats-primary">
+      <div class="stats-primary-head">
+        <div class="stats-metric stats-metric-primary">
+          <span>数据集数</span>
+          <strong id="stats-count">0</strong>
+        </div>
+      </div>
+      <div class="stats-kpi-grid">
+        <div class="stats-kpi">
+          <span>论文总量</span>
+          <strong id="stats-paper-count">--</strong>
+        </div>
+        <div class="stats-kpi">
+          <span>科学问题</span>
+          <strong id="stats-problem-count">--</strong>
+        </div>
+
+      </div>
+    </div>
+    <section class="stats-section stats-tag-section">
+      <div class="stats-section-title">
+        <span>数据集学科主题</span>
+      </div>
+      <div id="stats-dataset-tags" class="stats-tags"></div>
+    </section>
+    <section class="stats-section stats-tag-section stats-paper-tag-section">
+      <div class="stats-section-title">
+        <span>论文学科主题</span>
+      </div>
+      <div id="stats-paper-tags" class="stats-tags stats-paper-tags"></div>
+    </section>
+    <section class="stats-section stats-time-section">
+      <div class="stats-section-title">
+        <span>时间覆盖</span>
+      </div>
+      <div class="stats-time-grid">
+        <div>
+          <span>数据集时间</span>
+          <strong id="stats-dataset-time-range">--</strong>
+        </div>
+        <div>
+          <span>论文发表时间</span>
+          <strong id="stats-paper-time-range">--</strong>
+        </div>
+      </div>
+    </section>
+  </aside>
+
+  <aside id="ai-results-panel" class="ai-results-panel hidden" aria-label="自然语言数据集检索结果">
+    <header class="ai-results-head">
+      <div class="ai-results-heading">
+        <span class="ai-results-kicker">自然语言检索</span>
+        <h2>检索结果</h2>
+      </div>
+      <div class="ai-results-head-actions">
+        <span id="ai-results-count" class="ai-results-count">0 项</span>
+        <button id="ai-results-close" class="ai-results-close" type="button" title="关闭检索结果">
+          <span data-icon="x"></span>
+        </button>
+      </div>
+    </header>
+    <section class="ai-results-query" aria-label="本次检索条件">
+      <span>本次检索问题</span>
+      <strong id="ai-results-query-text">--</strong>
+      <div id="ai-results-arguments" class="ai-results-arguments"></div>
+    </section>
+    <div id="ai-results-loading" class="ai-results-state hidden" role="status">
+      <span class="ai-results-spinner" aria-hidden="true"></span>
+      <strong>正在检索数据集</strong>
+      <span>正在分析研究问题与时空条件</span>
+      <button id="ai-results-cancel" class="ai-results-cancel" type="button">取消检索</button>
+    </div>
+    <div id="ai-results-error" class="ai-results-state ai-results-error hidden" role="alert">
+      <strong>检索失败</strong>
+      <span id="ai-results-error-message">数据集检索服务暂时不可用</span>
+    </div>
+    <div id="ai-results-empty" class="ai-results-state hidden">
+      <strong>没有找到匹配的数据集</strong>
+      <span>可调整研究主题、年份或空间范围后重试</span>
+    </div>
+    <div id="ai-results-section-head" class="ai-results-section-head hidden">
+      <div><strong>相关数据集</strong><span>按语义匹配度排序</span></div>
+      <span id="ai-results-map-summary">暂无地图标注</span>
+    </div>
+    <div id="ai-results-list" class="ai-results-list" role="list"></div>
+  </aside>
+
+  <section id="layers-panel" class="panel hidden" aria-label="图层设置">
+    <div class="panel-head">
+      <span>底图</span>
+      <span class="panel-hint">切换</span>
+    </div>
+    <div id="base-layer-list" class="base-list">
+      <button class="base-row is-active" data-layer="offline" type="button">
+        <span data-icon="globe"></span>
+        <span>自然地球（离线）</span>
+      </button>
+      <button class="base-row" data-layer="satellite" type="button">
+        <span data-icon="satellite"></span>
+        <span>天地图影像</span>
+      </button>
+      <button class="base-row" data-layer="esri-satellite" type="button">
+        <span data-icon="satellite"></span>
+        <span>Esri 卫星影像</span>
+      </button>
+      <button class="base-row" data-layer="street" type="button">
+        <span data-icon="map"></span>
+        <span>天地图矢量</span>
+      </button>
+      <button class="base-row" data-layer="dark" type="button">
+        <span data-icon="moon"></span>
+        <span>暗色底图</span>
+      </button>
+    </div>
+    <div class="panel-head panel-section-head panel-section-head-ui">
+      <span>界面组件</span>
+      <span class="panel-hint">面板显示</span>
+    </div>
+    <div class="toggle-list">
+      <button class="toggle-row is-on" id="toggle-stats-panel" type="button">
+        <span>统计卡片</span>
+        <span class="check-icon" data-icon="check"></span>
+      </button>
+      <button class="toggle-row is-on" id="toggle-dataset-panel" type="button">
+        <span>数据列表</span>
+        <span class="check-icon" data-icon="check"></span>
+      </button>
+    </div>
+    <div class="panel-head panel-section-head">
+      <span>数据表达</span>
+      <span class="panel-hint">地图图层</span>
+    </div>
+    <div class="toggle-list">
+      <button class="toggle-row is-on" id="toggle-heat" type="button">
+        <span>密度热力</span>
+        <span class="check-icon" data-icon="check"></span>
+      </button>
+      <button class="toggle-row" id="toggle-paper-points" type="button">
+        <span>论文点位</span>
+        <span class="check-icon" data-icon="check"></span>
+      </button>
+      <button class="toggle-row is-on" id="toggle-h3-grid" type="button">
+        <span>H3 网格</span>
+        <span class="check-icon" data-icon="check"></span>
+      </button>
+      <button class="toggle-row is-on" id="toggle-region-markers" type="button">
+        <span>区域聚合圆圈</span>
+        <span class="check-icon" data-icon="check"></span>
+      </button>
+    </div>
+  </section>
+
+  <aside id="dataset-panel" class="dataset-panel hidden" aria-label="数据集列表">
+    <header class="dataset-panel-head">
+      <div class="dataset-panel-heading">
+        <span class="dataset-panel-kicker">数据集列表</span>
+        <h2 id="dataset-panel-title">选择城市</h2>
+      </div>
+      <div class="dataset-panel-head-actions">
+        <span id="dataset-panel-count" class="dataset-panel-count">0 项</span>
+        <button id="dataset-panel-clear" class="dataset-panel-clear hidden" type="button" title="清除框选范围">
+          <span data-icon="x"></span>
+        </button>
+      </div>
+    </header>
+    <nav id="dataset-panel-tabs" class="dataset-panel-tabs hidden" aria-label="数据类型">
+      <button class="is-active" type="button" data-city-tab="datasets">
+        <span>数据集</span><b id="dataset-tab-count">0</b>
+      </button>
+      <button type="button" data-city-tab="papers">
+        <span>论文</span><b id="paper-tab-count">0</b>
+      </button>
+    </nav>
+    <section id="selection-summary" class="selection-summary hidden" aria-label="框选范围统计">
+      <div class="selection-summary-range">
+        <span>空间范围</span>
+        <div class="selection-range-text">
+          <strong id="selection-range-label">--</strong>
+          <small id="selection-range-note" class="selection-range-note hidden"></small>
+        </div>
+      </div>
+      <div class="selection-metrics">
+        <div><span>命中数据集</span><strong id="selection-dataset-count">0</strong><small>项</small></div>
+        <div><span>命中论文</span><strong id="selection-paper-count">0</strong><small>篇</small></div>
+        <div><span id="selection-area-label">框选面积</span><strong id="selection-area">0 km²</strong></div>
+      </div>
+      <div id="selection-tags" class="selection-tags"></div>
+    </section>
+    <div id="dataset-panel-empty" class="dataset-panel-empty">
+      <span data-icon="map"></span>
+      <strong>选择一个城市</strong>
+      <span>查看该城市拥有的数据集</span>
+    </div>
+    <button id="search-locate-hint" class="search-locate-hint hidden" type="button">
+      <span>未找到相关数据集，点击定位到“<b id="search-locate-hint-name"></b>”？</span>
+    </button>
+    <div id="city-dataset-list" class="city-dataset-list" role="list"></div>
+    <footer id="dataset-panel-footer" class="dataset-panel-footer hidden"></footer>
+  </aside>
+
+  <footer class="map-footer" aria-label="地图状态与图例">
+    <div id="readout" class="readout" aria-live="polite">
+      <div class="readout-chip">
+        <span class="chip-label">经度</span>
+        <span id="lon-value">--</span>
+      </div>
+      <div class="readout-chip">
+        <span class="chip-label">纬度</span>
+        <span id="lat-value">--</span>
+      </div>
+      <div class="readout-chip">
+        <span class="chip-label">高度</span>
+        <span id="height-value">--</span>
+      </div>
+      <div id="h3-resolution-chip" class="readout-chip hidden">
+        <span class="chip-label">网格</span>
+        <span id="h3-resolution-value">--</span>
+      </div>
+    </div>
+    <aside class="heat-legend" aria-label="数据密度图例">
+      <span class="heat-legend-title">数据集覆盖密度</span>
+      <span class="heat-legend-label">低</span>
+      <span class="heat-gradient" aria-hidden="true"></span>
+      <span class="heat-legend-label">高</span>
+    </aside>
+    <aside id="paper-location-legend" class="paper-location-legend hidden" aria-label="论文真实点位图例">
+      <span class="paper-location-title">论文真实点位 <b id="paper-location-total">--</b></span>
+      <span class="paper-location-key"><i aria-hidden="true"></i>单篇</span>
+      <span class="paper-location-key is-stack"><i aria-hidden="true">N</i>同点多篇</span>
+    </aside>
+  </footer>
+
+  <div id="region-tooltip" class="region-tooltip hidden" role="status">
+    <strong id="region-tooltip-name"></strong>
+    <span><b id="region-tooltip-count">0</b><span id="region-tooltip-unit"> 个数据集</span></span>
+    <span id="region-tooltip-paper-line"><b id="region-tooltip-paper-count">0</b><span> 篇论文</span></span>
+    <small id="region-tooltip-hint"></small>
+  </div>
+
+  <div id="boundary-status" class="boundary-status hidden" role="status"></div>
+
+  <div id="selection-hint" class="selection-hint hidden" role="status">
+    <span data-icon="scan"></span>
+    <div><strong>框选数据范围</strong><span>按住鼠标拖拽，松开完成 · Esc 取消</span></div>
+  </div>
+
+  <canvas id="selection-draw-overlay" class="selection-draw-overlay" aria-hidden="true"></canvas>
+
+  <div id="h3-hover-indicator" class="h3-hover-indicator hidden" aria-hidden="true"></div>
+
+  <div id="circle-radius-control" class="circle-radius-control hidden" aria-label="圆形选择范围">
+    <div class="circle-radius-heading">
+      <div>
+        <span>圆形点选</span>
+        <strong id="circle-center-label">--</strong>
+      </div>
+      <label>
+        <input id="circle-radius-input" type="number" min="0.05" step="1" value="100">
+        <span>km</span>
+      </label>
+    </div>
+    <input id="circle-radius-slider" type="range" min="0" max="1000" step="1" value="100">
+    <div class="circle-radius-scale">
+      <output id="circle-radius-output">100 km</output>
+      <span>0.05 km</span>
+      <span>5000 km</span>
+    </div>
+  </div>
+
+  <div id="error-overlay" class="error-overlay hidden">
+    <div class="error-box">
+      <h2>地球加载失败</h2>
+      <p id="error-message">无法加载地球渲染引擎。</p>
+      <button id="retry-load" class="action-btn" type="button">重新加载</button>
+    </div>
+  </div>
+
+  <div id="file-notice" class="error-overlay hidden">
+    <div class="error-box">
+      <h2>请通过本地服务器访问</h2>
+      <p>直接打开 HTML 文件时，地球无法正常显示。请使用 <a href="http://localhost:8001/">http://localhost:8001/</a> 访问。</p>
+    </div>
+  </div>
+
+  <script>
+    if (location.protocol === "file:") {
+      document.getElementById("file-notice").classList.remove("hidden");
+    }
+  </script>
+
+  <script src="./js/config.local.js"></script>
+  <script src="./js/app.js?v=32"></script>
+  <script src="./js/admin-explorer.js?v=245"></script>
+</body>
+</html>
